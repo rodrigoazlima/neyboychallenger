@@ -13,7 +13,7 @@ import javax.swing.JLabel;
  *
  * @author Rodrigo
  */
-public class PrintPreviewJLabel extends JLabel {
+public class PrintPreviewJLabel extends JLabel implements PrintPreview {
 
     protected PrintScreenController controller;
 
@@ -21,6 +21,7 @@ public class PrintPreviewJLabel extends JLabel {
         return controller;
     }
 
+    @Override
     public void setPrintScreenController(PrintScreenController controller) {
         this.controller = controller;
         revalidate();

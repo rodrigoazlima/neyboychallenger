@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.ArrayList;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import neyboychallanger.view.component.PrintPreviewJLabel;
+import neyboychallanger.view.component.PrintPreview;
 
 /**
  *
@@ -21,8 +21,8 @@ public class PrintScreenController {
 
     private ImageIcon sharedmini;
     private ImageIcon shared;
-    private int x = 0, y = 0;
-    private List<PrintPreviewJLabel> listPreviewLabels;
+    private int x = 0, y = 0, w = 60, h = 60;
+    private List<PrintPreview> listPreviewLabels;
 
     public PrintScreenController() {
     }
@@ -43,8 +43,24 @@ public class PrintScreenController {
         this.y = y;
     }
 
+    public int getW() {
+        return w;
+    }
+
+    public void setW(int w) {
+        this.w = w;
+    }
+
+    public int getH() {
+        return h;
+    }
+
+    public void setH(int h) {
+        this.h = h;
+    }
+
     public Rectangle getPrintRectangle() {
-        return new Rectangle(x - 30, y - 30, 60, 60);
+        return new Rectangle(x - w / 2, y - h / 2, w, h);
     }
 
     public Rectangle getExactRectangle() {
@@ -89,12 +105,12 @@ public class PrintScreenController {
         getSharedMini().setImage(i);
     }
 
-    public void addLabel(PrintPreviewJLabel label) {
+    public void addLabel(PrintPreview label) {
         getListPreviewLabels().add(label);
         label.setPrintScreenController(this);
     }
 
-    public List<PrintPreviewJLabel> getListPreviewLabels() {
+    public List<PrintPreview> getListPreviewLabels() {
         if (listPreviewLabels == null) {
             listPreviewLabels = new ArrayList();
         }
@@ -102,8 +118,8 @@ public class PrintScreenController {
     }
 
     public void repaintRecursively() {
-        for (PrintPreviewJLabel lb : getListPreviewLabels()) {
-            lb.repaint();
+        for (PrintPreview pp : getListPreviewLabels()) {
+            pp.repaint();
         }
     }
 

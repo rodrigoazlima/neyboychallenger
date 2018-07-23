@@ -11,7 +11,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.Icon;
-import neyboychallanger.util.RGBString;
+import neyboychallanger.util.ColorUtilities;
 
 /**
  *
@@ -36,7 +36,7 @@ public class MiniPrintPreviewJLabel extends PrintPreviewJLabel {
             if (i instanceof BufferedImage) {
                 BufferedImage bi = (BufferedImage) i;
                 int rgb = bi.getRGB(0, 0);
-                return RGBString.RGBtoString(rgb);
+                return ColorUtilities.RGBtoString(rgb);
             }
         }
         return super.getToolTipText();

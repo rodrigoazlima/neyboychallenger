@@ -22,13 +22,56 @@ import neyboychallanger.view.component.PrintPreviewJLabel;
  */
 public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
 
+    private static final String VERSION = "0.0.2";
+    private static final int LOG_LENGHT = 30;
+
     private static NeyChallangerJFrame singleton;
-    private PrintScreenProcessor pspEsquerdo;
-    private PrintScreenProcessor pspDireito;
 
     public static NeyChallangerJFrame getSingleton() {
+        if (singleton == null) {
+            singleton = new NeyChallangerJFrame();
+        }
         return singleton;
     }
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(NeyChallangerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(NeyChallangerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(NeyChallangerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(NeyChallangerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new NeyChallangerJFrame().setVisible(true);
+            }
+        });
+    }
+
+    private PrintScreenProcessor pspEsquerdo;
+    private PrintScreenProcessor pspDireito;
 
     /**
      * Creates new form NeyChallangerJFrame
@@ -50,7 +93,7 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
                     (MiniPrintPreviewJLabel) lblPreviewE2mini,
                     (MiniPrintPreviewJLabel) lblPreviewE3mini);
             pspEsquerdo.setLogger(this);
-            
+
             pspDireito = new PrintScreenProcessor(false);
             pspDireito.setPrintPreviewJLabels((PrintPreviewJLabel) lblPreviewD1,
                     (PrintPreviewJLabel) lblPreviewD2,
@@ -90,11 +133,11 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
         if (text == null) {
             return;
         }
-        if (imputs > 100) {
+        if (imputs > LOG_LENGHT) {
             String[] split = txaLog.getText().split("\n");
-            if (split.length - 100 > 0) {
+            if (split.length - LOG_LENGHT > 0) {
                 StringBuilder sb = new StringBuilder();
-                for (int i = split.length - 100; i < split.length; i++) {
+                for (int i = split.length - LOG_LENGHT; i < split.length; i++) {
                     sb.append(split[i]).append("\n");
                 }
                 txaLog.setText(sb.toString().trim());
@@ -164,9 +207,13 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
         lblPreviewD1mini = new MiniPrintPreviewJLabel();
         lblPreviewD2mini = new MiniPrintPreviewJLabel();
         lblPreviewD3mini = new MiniPrintPreviewJLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Ney Boy Challanger v0.0.1");
+        setTitle("Ney Boy Challanger v"+VERSION);
         setBackground(new java.awt.Color(255, 255, 255));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -180,7 +227,7 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel2.setText("v0.0.1");
+        jLabel2.setText("v"+VERSION);
 
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane1.setAutoscrolls(true);
@@ -189,7 +236,7 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
         txaLog.setBackground(new java.awt.Color(240, 240, 240));
         txaLog.setColumns(30);
         txaLog.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
-        txaLog.setRows(100);
+        txaLog.setRows(30);
         txaLog.setWrapStyleWord(true);
         txaLog.setFocusable(false);
         txaLog.setOpaque(false);
@@ -273,12 +320,27 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
 
         lblPreviewE1mini.setToolTipText(" ");
         lblPreviewE1mini.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 204, 102), 2));
+        lblPreviewE1mini.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPreviewE1miniMouseClicked(evt);
+            }
+        });
 
         lblPreviewE2mini.setToolTipText(" ");
         lblPreviewE2mini.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(234, 234, 0), 2));
+        lblPreviewE2mini.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPreviewE2miniMouseClicked(evt);
+            }
+        });
 
         lblPreviewE3mini.setToolTipText(" ");
         lblPreviewE3mini.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 51, 0), 2));
+        lblPreviewE3mini.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPreviewE3miniMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -325,7 +387,7 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jLabel6))))))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -432,12 +494,27 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
 
         lblPreviewD1mini.setToolTipText(" ");
         lblPreviewD1mini.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 204, 102), 2));
+        lblPreviewD1mini.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPreviewD1miniMouseClicked(evt);
+            }
+        });
 
         lblPreviewD2mini.setToolTipText(" ");
         lblPreviewD2mini.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(234, 234, 0), 2));
+        lblPreviewD2mini.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPreviewD2miniMouseClicked(evt);
+            }
+        });
 
         lblPreviewD3mini.setToolTipText(" ");
         lblPreviewD3mini.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 51, 0), 2));
+        lblPreviewD3mini.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPreviewD3miniMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -520,36 +597,53 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
                         .addGap(26, 26, 26)
                         .addComponent(jLabel16))
                     .addComponent(jLabel17)
-                    .addComponent(lblPreviewD3mini, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(lblPreviewD3mini, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
+
+        jPanel3.setOpaque(false);
+        jPanel3.setLayout(null);
+
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neyboychallanger/view/resource/cartaovermelho.png"))); // NOI18N
+        jPanel3.add(jLabel3);
+        jLabel3.setBounds(390, 10, 120, 186);
+
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neyboychallanger/view/resource/cartaoamarelo.png"))); // NOI18N
+        jPanel3.add(jLabel4);
+        jLabel4.setBounds(180, 0, 120, 190);
+
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/neyboychallanger/view/resource/cartaoverde.png"))); // NOI18N
+        jPanel3.add(jLabel9);
+        jLabel9.setBounds(-10, 0, 120, 190);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 0, Short.MAX_VALUE)
+                                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 580, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(124, 124, 124)
+                                        .addComponent(btnStartCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(119, 119, 119))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(6, 6, 6))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(1, 1, 1)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 565, Short.MAX_VALUE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnStartCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE))
+                                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGap(2, 2, 2))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -561,17 +655,19 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnStartCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .addComponent(jScrollPane1)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnStartCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartCancelActionPerformed
+        txaLog.setText("");
         updateXY();
         boolean flag = !isControlerEnabled();
         pspEsquerdo.setEnabled(flag);
@@ -640,40 +736,29 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
         updateXY();
     }//GEN-LAST:event_spnControlerPSPD1YStateChanged
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(NeyChallangerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(NeyChallangerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(NeyChallangerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(NeyChallangerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void lblPreviewE1miniMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPreviewE1miniMouseClicked
+        pspEsquerdo.moveMouseToXY1();
+    }//GEN-LAST:event_lblPreviewE1miniMouseClicked
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new NeyChallangerJFrame().setVisible(true);
-            }
-        });
-    }
+    private void lblPreviewE2miniMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPreviewE2miniMouseClicked
+        pspEsquerdo.moveMouseToXY2();
+    }//GEN-LAST:event_lblPreviewE2miniMouseClicked
+
+    private void lblPreviewE3miniMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPreviewE3miniMouseClicked
+        pspEsquerdo.moveMouseToXY3();
+    }//GEN-LAST:event_lblPreviewE3miniMouseClicked
+
+    private void lblPreviewD1miniMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPreviewD1miniMouseClicked
+        pspDireito.moveMouseToXY1();
+    }//GEN-LAST:event_lblPreviewD1miniMouseClicked
+
+    private void lblPreviewD2miniMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPreviewD2miniMouseClicked
+        pspDireito.moveMouseToXY2();
+    }//GEN-LAST:event_lblPreviewD2miniMouseClicked
+
+    private void lblPreviewD3miniMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPreviewD3miniMouseClicked
+        pspDireito.moveMouseToXY3();
+    }//GEN-LAST:event_lblPreviewD3miniMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnStartCancel;
@@ -687,12 +772,16 @@ public class NeyChallangerJFrame extends javax.swing.JFrame implements Logger {
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblPreviewD1;
     private javax.swing.JLabel lblPreviewD1mini;

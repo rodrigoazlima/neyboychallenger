@@ -13,14 +13,16 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import neyboychallanger.util.RGBString;
+import javax.swing.SwingUtilities;
+import neyboychallanger.util.ColorUtilities;
 import neyboychallanger.util.TimerTaskLooper;
 import neyboychallanger.view.NeyChallangerJFrame;
-import neyboychallanger.view.component.MiniPrintPreviewJLabel;
 import neyboychallanger.view.component.PrintPreviewJLabel;
 
 /**
@@ -28,6 +30,44 @@ import neyboychallanger.view.component.PrintPreviewJLabel;
  * @author Rodrigo
  */
 public class PrintScreenProcessor implements Logger {
+
+    private static long DEFAULT_DELAY1 = 320L,
+            DEFAULT_DELAY2 = 120L,
+            DEFAULT_DELAY3 = 20L;
+    private final int DEFAULT_ACCEPTANCE = 2;//px
+
+    public static void setDefaultDelays(long d1, long d2, long d3) {
+        DEFAULT_DELAY1 = d1;
+        DEFAULT_DELAY2 = d2;
+        DEFAULT_DELAY3 = d3;
+    }
+
+    private void initDefaultSettings() {
+        List<Color> acceptableList = getAcceptableColors();
+        if (acceptableList.isEmpty()) {
+            acceptableList.add(new Color(255, 255, 255));
+            acceptableList.add(new Color(229, 247, 232));
+            acceptableList.add(new Color(203, 238, 209));
+            acceptableList.add(new Color(201, 235, 207));
+            acceptableList.add(new Color(177, 230, 187));
+            acceptableList.add(new Color(163, 225, 175));
+            acceptableList.add(new Color(146, 220, 160));
+            acceptableList.add(new Color(112, 216, 132));
+            acceptableList.add(new Color(100, 205, 120));
+            acceptableList.add(new Color(91, 195, 111));
+            acceptableList.add(new Color(83, 176, 100));
+        }
+        List<Color> failList = getFailColors();
+        if (failList.isEmpty()) {
+            failList.add(new Color(239, 73, 120));
+            failList.add(new Color(212, 41, 89));
+            failList.add(new Color(183, 30, 73));
+        }
+    }
+
+    private void isValidGreen(Color c) {
+
+    }
 
     private Robot bot;
     private Timer timer;
@@ -46,6 +86,7 @@ public class PrintScreenProcessor implements Logger {
     private static int botActions;
     private List<Color> acceptableColors;
     private List<Color> failColors;
+    private Runnable executeInvokePlease;
 
     public PrintScreenProcessor(boolean left) {
         this.left = left;
@@ -101,6 +142,31 @@ public class PrintScreenProcessor implements Logger {
         psa3.setY(y);
     }
 
+    public void moveMouseToXY1() {
+        moveMouseToXY(psa1.getX(), psa1.getY());
+    }
+
+    public void moveMouseToXY2() {
+        moveMouseToXY(psa2.getX(), psa2.getY());
+    }
+
+    public void moveMouseToXY3() {
+        moveMouseToXY(psa3.getX(), psa3.getY());
+    }
+
+    public void moveMouseToXY(int x, int y) {
+        if (executeInvokePlease != null) {
+            SwingUtilities.invokeLater(() -> {
+                moveMouseToXY(x, y);
+            });
+            return;
+        }
+        this.executeInvokePlease = () -> {
+            bot.mouseMove(x, y);
+        };
+        awakenOutputProcessor();
+    }
+
     public Image getPrintScreenIcon1() {
         return psa1.getSharedImage();
     }
@@ -123,138 +189,7 @@ public class PrintScreenProcessor implements Logger {
 
     private Runnable getRunnableOutputProcessor() {
         if (runnableOutputProcessor == null) {
-            runnableOutputProcessor = new Runnable() {
-
-                private Point p1, p2, p3;
-                private long start;
-                private Long delay1 = System.currentTimeMillis(),
-                        delay2 = System.currentTimeMillis(),
-                        delay3 = System.currentTimeMillis();
-                private final Long DEFAULT_DELAY1 = 300L,
-                        DEFAULT_DELAY2 = 100L,
-                        DEFAULT_DELAY3 = 1L;
-                private final int DEFAULT_ACCEPTANCE = 2;//px
-                private Dimension d = new Dimension(1, 1);
-
-                @Override
-                public void run() {
-                    try {
-                        do {
-                            if (!enabled) {
-                                log(" Sleeping Zzz");
-                                sleep();
-                                continue;
-                            }
-                            if (botActions == 0) {
-                                initBot();
-                            }
-                            long time = System.currentTimeMillis();
-                            if (pixelMatchesWith(p3, getFailColors())) {
-                                log(" Detected failure. Please click on play."
-                                        + RGBString.RGBtoString(getColorOfPointOnScreen(p3)));
-                                System.out.println(getFailColors());
-                                setEnabled(false);
-                                NeyChallangerJFrame.getSingleton().update();
-                            } else if (!pixelMatchesWith(p1, getAcceptableColors())
-                                    && delay1 + DEFAULT_DELAY1 <= time) {
-                                pressButton("P1 " + (time - delay1));
-                                delay1 = time;
-                            } else if (!pixelMatchesWith(p2, getAcceptableColors())
-                                    && delay2 + DEFAULT_DELAY2 <= time) {
-                                pressButton(" P2 " + (time - delay2));
-                                delay2 = time;
-                            } else if (!pixelMatchesWith(p3, getAcceptableColors())
-                                    && delay3 + DEFAULT_DELAY3 <= time) {
-                                pressButton("  P3 " + (time - delay3));
-                                delay3 = time;
-                            }
-                        } while (true);
-                    } catch (Exception e) {
-                    }
-                }
-
-                private void initBot() {
-                    log(" Start! " + (start = System.currentTimeMillis()));
-                    p1 = new Point(psa1.getX(), psa1.getY());
-                    p2 = new Point(psa2.getX(), psa2.getY());
-                    p3 = new Point(psa3.getX(), psa3.getY());
-                    bot.setAutoWaitForIdle(true);
-                    bot.mouseMove(p3.x + 20, p3.y - 20);
-                    bot.mousePress(KeyEvent.BUTTON1_MASK);
-                    bot.delay(1);
-                    bot.mouseRelease(KeyEvent.BUTTON1_MASK);
-                    bot.delay(1);
-                    log(" Mouse Click at " + (p3.x + 20) + "x and " + (p3.y - 20) + "y");
-                    botActions++;
-                }
-
-                private void sleep() {
-                    try {
-                        sleeperLock.wait(1000);
-                    } catch (Throwable e) {
-                    }
-                }
-
-                private boolean pixelMatchesWith(Point p, List<Color> list) {
-                    for (Color c : list) {
-                        if (pixelMatchesWith(p, c)) {
-                            log("\t\t\tMATCH " + RGBString.RGBtoString(getColorOfPointOnScreen(p)));
-                            return true;
-                        }
-                    }
-                    //log("NOT A MATCH " + RGBString.RGBtoString(getColorOfPointOnScreen(p)));
-                    return false;
-                }
-                private long printScreenOtimizador = System.currentTimeMillis();
-                private Point lastPointOtimizador = null;
-                private Color lastColorOtimizador = null;
-
-                private Color getColorOfPointOnScreen(Point p) {
-                    if (lastPointOtimizador != null && lastColorOtimizador != null) {
-                        if (printScreenOtimizador == System.currentTimeMillis()
-                                && p.x == lastPointOtimizador.x
-                                && p.y == lastPointOtimizador.y) {
-                            return lastColorOtimizador;
-                        }
-
-                    }
-                    BufferedImage bi = bot.createScreenCapture(new Rectangle(p, d));
-                    int rgb = bi.getRGB(0, 0);
-                    Color c = new Color(rgb);
-                    printScreenOtimizador = System.currentTimeMillis();
-                    lastPointOtimizador = p;
-                    lastColorOtimizador = c;
-                    return c;
-                }
-
-                private boolean pixelMatchesWith(Point p, Color c) {
-                    Color cScreen = getColorOfPointOnScreen(p);
-                    if (c.getRed() <= cScreen.getRed() + DEFAULT_ACCEPTANCE
-                            && c.getRed() >= cScreen.getRed() - DEFAULT_ACCEPTANCE
-                            && c.getGreen() <= cScreen.getGreen() + DEFAULT_ACCEPTANCE
-                            && c.getGreen() >= cScreen.getGreen() - DEFAULT_ACCEPTANCE
-                            && c.getBlue() <= cScreen.getBlue() + DEFAULT_ACCEPTANCE
-                            && c.getBlue() >= cScreen.getBlue() - DEFAULT_ACCEPTANCE) {
-                        return true;
-                    }
-                    return false;
-                }
-
-                private void pressButton(String delay) {
-                    if (!left) {
-                        bot.keyPress(KeyEvent.VK_LEFT);
-                        bot.delay(1);
-                        bot.keyRelease(KeyEvent.VK_LEFT);
-                        log(" <- " + delay + "ms ");
-                    } else {
-                        bot.keyPress(KeyEvent.VK_RIGHT);
-                        bot.delay(1);
-                        bot.keyRelease(KeyEvent.VK_RIGHT);
-                        log(" -> " + delay + "ms ");
-                    }
-                    botActions++;
-                }
-            };
+            runnableOutputProcessor = new OutputProcessorRunnable();
         }
         return runnableOutputProcessor;
     }
@@ -295,22 +230,6 @@ public class PrintScreenProcessor implements Logger {
         return runnableTimer;
     }
 
-    private void initDefaultSettings() {
-        List<Color> acceptableList = getAcceptableColors();
-        if (acceptableList.isEmpty()) {
-            acceptableList.add(new Color(112, 216, 132));
-            acceptableList.add(new Color(100, 205, 120));
-            acceptableList.add(new Color(91, 195, 111));
-            acceptableList.add(new Color(83, 176, 100));
-        }
-        List<Color> failList = getFailColors();
-        if (failList.isEmpty()) {
-            failList.add(new Color(239, 73, 120));
-            failList.add(new Color(212, 41, 89));
-            failList.add(new Color(183, 30, 73));
-        }
-    }
-
     private void init() {
         psa1 = new PrintScreenController();
         psa2 = new PrintScreenController();
@@ -332,15 +251,16 @@ public class PrintScreenProcessor implements Logger {
         }
         if (!started) {
             started = true;
+            botActions = 0;
             awakenOutputProcessor();
         }
     }
 
     private void awakenOutputProcessor() {
         Thread t = getThreadOutputProcessor();
-        this.botActions = 0;
-        if (t.getState() == Thread.State.NEW
-                || t.getState() == Thread.State.RUNNABLE) {
+        if (!t.isAlive()
+                && (t.getState() == Thread.State.NEW
+                || t.getState() == Thread.State.RUNNABLE)) {
             t.start();
         } else if (!t.isAlive()
                 && t.isInterrupted()
@@ -391,6 +311,176 @@ public class PrintScreenProcessor implements Logger {
             System.out.println(text);
         } else {
             logger.log(text);
+        }
+    }
+
+    private class OutputProcessorRunnable implements Runnable {
+
+        private Point p1;
+        private Point p2;
+        private Point p3;
+        private long start = 0;
+        private long delay = 0;
+        private Dimension d = new Dimension(1, 1);
+
+        public OutputProcessorRunnable() {
+        }
+
+        @Override
+        public void run() {
+            try {
+                do {
+                    if (executeInvokePlease != null) {
+                        executeInvokePlease.run();
+                        executeInvokePlease = null;
+                    }
+                    if (!enabled) {
+                        log(" Sleeping Zzz");
+                        sleep();
+                        continue;
+                    }
+                    if (botActions == 0) {
+                        initBot();
+                    }
+                    long time = System.currentTimeMillis();
+                    if (pixelMatchesWith(p3, getFailColors())) {
+                        log(" Detected failure. Please click on play. ");
+                        setEnabled(false);
+                        NeyChallangerJFrame.getSingleton().update();
+
+                    } else if (delay + DEFAULT_DELAY1 <= time
+                            && !pixelMatchesWith(p1, getAcceptableColors(), true)) {
+                        pressButton("P1 " + (time - delay)
+                                + "ms\t\t\t" + ColorUtilities.RGBtoString(getColorOfPointOnScreen(p1))
+                                + "\t" + ColorUtilities.RGBToHFromHSV(getColorOfPointOnScreen(p1)) + "º");
+
+                        delay = time;
+
+                    } else if (delay + DEFAULT_DELAY2 <= time
+                            && !pixelMatchesWith(p2, getAcceptableColors(), true)) {
+                        pressButton("P-2 " + (time - delay)
+                                + "ms\t\t\t" + ColorUtilities.RGBtoString(getColorOfPointOnScreen(p2))
+                                + "\t" + ColorUtilities.RGBToHFromHSV(getColorOfPointOnScreen(p2)) + "º");
+
+                        delay = time;
+
+                    } else if (delay + DEFAULT_DELAY3 <= time
+                            && !pixelMatchesWith(p3, getAcceptableColors(), true)) {
+                        pressButton("P--3 "
+                                + (time - delay)
+                                + "ms\t\t\t" + ColorUtilities.RGBtoString(getColorOfPointOnScreen(p3))
+                                + "\t" + ColorUtilities.RGBToHFromHSV(getColorOfPointOnScreen(p3)) + "º");
+
+                        delay = time;
+
+                    }
+                } while (true);
+            } catch (Exception e) {
+            }
+        }
+
+        private void initBot() {
+            log(" Started! " + format(delay = start = System.currentTimeMillis()));
+            p1 = new Point(psa1.getX(), psa1.getY());
+            p2 = new Point(psa2.getX(), psa2.getY());
+            p3 = new Point(psa3.getX(), psa3.getY());
+            bot.setAutoWaitForIdle(true);
+            bot.mouseMove(p3.x + 20, p3.y - 20);
+            bot.mousePress(KeyEvent.BUTTON1_MASK);
+            bot.delay(1);
+            bot.mouseRelease(KeyEvent.BUTTON1_MASK);
+            bot.delay(1);
+            log(" Mouse Click at " + (p3.x + 20) + "x and " + (p3.y - 20) + "y");
+            botActions++;
+        }
+
+        private void sleep() {
+            try {
+                //getSleeperLock().wait(1000);
+                Thread.sleep(1000);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+
+        private boolean pixelMatchesWith(Point p, List<Color> list) {
+            return pixelMatchesWith(p, list, false);
+        }
+
+        private boolean pixelMatchesWith(Point p, List<Color> list, boolean checkHSB) {
+            Color cScreen = getColorOfPointOnScreen(p);
+            if (checkHSB && pixelMatchesWithHSB(cScreen)) {
+                return true;
+            }
+            for (Color c : list) {
+                if (pixelMatchesWith(c, cScreen)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean pixelMatchesWithHSB(Color cScreen) {
+            float h = ColorUtilities.RGBToHFromHSV(cScreen);
+            if (h >= (130f - DEFAULT_ACCEPTANCE)
+                    && h <= (130f + DEFAULT_ACCEPTANCE)) {
+                return true;
+            }
+            return false;
+        }
+
+        private boolean pixelMatchesWith(Color c, Color cScreen) {
+            if (c.getRed() <= cScreen.getRed() + DEFAULT_ACCEPTANCE
+                    && c.getRed() >= cScreen.getRed() - DEFAULT_ACCEPTANCE
+                    && c.getGreen() <= cScreen.getGreen() + DEFAULT_ACCEPTANCE
+                    && c.getGreen() >= cScreen.getGreen() - DEFAULT_ACCEPTANCE
+                    && c.getBlue() <= cScreen.getBlue() + DEFAULT_ACCEPTANCE
+                    && c.getBlue() >= cScreen.getBlue() - DEFAULT_ACCEPTANCE) {
+                return true;
+            }
+            return false;
+        }
+        private long printScreenOtimizador = System.currentTimeMillis();
+        private Point lastPointOtimizador = null;
+        private Color lastColorOtimizador = null;
+
+        private Color getColorOfPointOnScreen(Point p) {
+            if (lastPointOtimizador != null && lastColorOtimizador != null) {
+                if (printScreenOtimizador == System.currentTimeMillis()
+                        && p.x == lastPointOtimizador.x
+                        && p.y == lastPointOtimizador.y) {
+                    return lastColorOtimizador;
+                }
+
+            }
+            BufferedImage bi = bot.createScreenCapture(new Rectangle(p, d));
+            int rgb = bi.getRGB(0, 0);
+            Color c = new Color(rgb);
+            printScreenOtimizador = System.currentTimeMillis();
+            lastPointOtimizador = p;
+            lastColorOtimizador = c;
+            return c;
+        }
+
+        private void pressButton(String log) {
+            if (!left) {
+                bot.keyPress(KeyEvent.VK_LEFT);
+                bot.delay(1);
+                bot.keyRelease(KeyEvent.VK_LEFT);
+                log(" <- " + log);
+            } else {
+                bot.keyPress(KeyEvent.VK_RIGHT);
+                bot.delay(1);
+                bot.keyRelease(KeyEvent.VK_RIGHT);
+                log(" -> " + log);
+            }
+            botActions++;
+        }
+
+        private SimpleDateFormat sdf = new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss");
+
+        private String format(long time) {
+            return sdf.format(new Date(time));
         }
     }
 
